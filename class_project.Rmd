@@ -19,6 +19,9 @@ library(mgcv)
 library(lme4)
 library(broom)
 library(modelr)
+library(glue)
+library(plotly)
+library(ggrepel)
 ```
 
 ```{r}
@@ -31,12 +34,27 @@ hit_into_play2016 <- map2_dfr(start_dates, end_dates, scrape_statcast_savant) %>
          launch_speed > 0,
          launch_angle < 360)
 
-model.location = gam(events == "home_run" ~ s(plate_x, plate_z),
+
+```
+
+```{r}
+model.location = gam(events == "home_run" ~ s(launch_speed, launch_angle),
                      family = "binomial",
                      data = hit_into_play2016)
 
 summary(model.location)
 
+
+vars <- c("G", "AB","R", "H", "X2B","X3B","HR", "RBI", "BB", "SO", "SB",
+          "SH", "HBP", "SF")
+
+name_stats <- Batting %>%
+  group_by(playerID) %>%
+  summarize_at(vars,sum,na.rm = TRUE) %>%
+  mutate(AVG = round(H/AB,3),
+         HR.rate = HR/AB,
+         PA = AB + BB + SH + HBP + SF) %>%
+  left_join()
   
 #fit random effects model adjusting for pitch location
 hit_into_play2016 = model.location %>%
@@ -44,9 +62,10 @@ hit_into_play2016 = model.location %>%
           newdata = hit_into_play2016) %>%
   rename(HR_prob = .fitted)
 
-model_random_effects = glmer(events == "home_run" ~ HR_prob + (1|batter),
+model_random_effects = glmer(events == "home_run" ~ HR_prob + (1|player_name),
                              family = "binomial",
                              data = hit_into_play2016)   #one with vertical line indicated random effect
 summary(model_random_effects)
 
 ```
+
