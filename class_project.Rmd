@@ -56,19 +56,19 @@ name_stats <- Batting %>%
          PA = AB + BB + SH + HBP + SF) %>%
   left_join(People, by = "playerID")
 
-hit_into_play2016_stats = hit_into_play2016 %>%
-  mutate()
-  left_join(name_stats, b)
+hit_into_play2016_stats = name_stats %>%
+  mutate(player_name = paste(nameLast,nameFirst, sep = ", "))%>%
+  left_join(hit_into_play2016, by = "player_name")
   
 #fit random effects model adjusting for pitch location
-hit_into_play2016 = model.location %>%
+hit_into_play2016_stats = model.location %>%
   augment(tpe.predict = "response",
-          newdata = hit_into_play2016) %>%
+          newdata = hit_into_play2016_stats) %>%
   rename(HR_prob = .fitted)
 
-model_random_effects = glmer(events == "home_run" ~ HR_prob + (1|player_name),
+model_random_effects = glmer(events == "home_run" ~ HR_prob + (1|player_name) + AVG,
                              family = "binomial",
-                             data = hit_into_play2016)   #one with vertical line indicated random effect
+                             data = hit_into_play2016_stats)   #one with vertical line indicated random effect
 summary(model_random_effects)
 
 ```
