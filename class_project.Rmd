@@ -61,8 +61,8 @@ hit_into_play2016_stats = name_stats %>%
   left_join(hit_into_play2016, by = "player_name")
   
 #fit random effects model adjusting for pitch location
-hit_into_play2016_stats = model.location %>%
-  augment(tpe.predict = "response",
+hit_into_play2016_stats_model = model.location %>%
+  augment(type.predict = "response",
           newdata = hit_into_play2016_stats) %>%
   rename(HR_prob = .fitted)
 
