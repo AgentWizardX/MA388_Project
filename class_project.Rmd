@@ -16,6 +16,9 @@ library(Lahman)
 library(lubridate)
 library(baseballr)
 library(mgcv)
+library(lme4)
+library(broom)
+library(modelr)
 ```
 
 ```{r}
@@ -28,8 +31,22 @@ hit_into_play2016 <- map2_dfr(start_dates, end_dates, scrape_statcast_savant) %>
          launch_speed > 0,
          launch_angle < 360)
 
+model.location = gam(events == "home_run" ~ s(plate_x, plate_z),
+                     family = "binomial",
+                     data = hit_into_play2016)
 
-hit_mod <- gam(description == "" ~ s(plate_x, plate_z),
-                  family = "binomial", data = pitches_taken_subset)
+summary(model.location)
+
+  
+#fit random effects model adjusting for pitch location
+hit_into_play2016 = model.location %>%
+  augment(tpe.predict = "response",
+          newdata = hit_into_play2016) %>%
+  rename(HR_prob = .fitted)
+
+model_random_effects = glmer(events == "home_run" ~ HR_prob + (1|batter),
+                             family = "binomial",
+                             data = hit_into_play2016)   #one with vertical line indicated random effect
+summary(model_random_effects)
 
 ```
