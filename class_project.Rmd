@@ -13,8 +13,23 @@ knitr::opts_chunk$set(echo = TRUE)
 # Imports go here
 library(tidyverse)
 library(Lahman)
+library(lubridate)
+library(baseballr)
+library(mgcv)
 ```
 
 ```{r}
+start_dates <- seq(ymd("2016-04-03"), ymd("2016-09-30"), by = "10 days")
+end_dates <- start_dates + 9
+
+hit_into_play2016 <- map2_dfr(start_dates, end_dates, scrape_statcast_savant) %>% 
+  filter(description == "hit_into_play") %>% 
+  filter(launch_speed < 150,
+         launch_speed > 0,
+         launch_angle < 360)
+
+
+hit_mod <- gam(description == "" ~ s(plate_x, plate_z),
+                  family = "binomial", data = pitches_taken_subset)
 
 ```
