@@ -25,6 +25,7 @@ library(ggrepel)
 ```
 
 ```{r}
+#pulls 2016 data from Statcast. One row per pitch hit into play
 start_dates <- seq(ymd("2016-04-03"), ymd("2016-09-30"), by = "10 days")
 end_dates <- start_dates + 9
 
@@ -38,6 +39,7 @@ hit_into_play2016 <- map2_dfr(start_dates, end_dates, scrape_statcast_savant) %>
 ```
 
 ```{r}
+#creates HR probability model based on batting launch angle and speed
 model.location = gam(events == "home_run" ~ s(launch_speed, launch_angle),
                      family = "binomial",
                      data = hit_into_play2016)
@@ -48,6 +50,7 @@ summary(model.location)
 vars <- c("G", "AB","R", "H", "X2B","X3B","HR", "RBI", "BB", "SO", "SB",
           "SH", "HBP", "SF")
 
+#gets player stats and joins with the naming convention of the batters
 name_stats <- Batting %>%
   group_by(playerID) %>%
   summarize_at(vars,sum,na.rm = TRUE) %>%
@@ -56,6 +59,8 @@ name_stats <- Batting %>%
          PA = AB + BB + SH + HBP + SF) %>%
   left_join(People, by = "playerID")
 
+#joins the player stats with the statcast data
+#one row per pitch, adding the batter's seasonal batting stats each row
 hit_into_play2016_stats = name_stats %>%
   mutate(player_name = paste(nameLast,nameFirst, sep = ", "))%>%
   left_join(hit_into_play2016, by = "player_name")
@@ -66,6 +71,7 @@ hit_into_play2016_stats_model = model.location %>%
           newdata = hit_into_play2016_stats) %>%
   rename(HR_prob = .fitted)
 
+#create a random effects model with fixed effect fro batter and teh batter's BA
 model_random_effects = glmer(events == "home_run" ~ HR_prob + (1|player_name) + AVG,
                              family = "binomial",
                              data = hit_into_play2016_stats)   #one with vertical line indicated random effect
