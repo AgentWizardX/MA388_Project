@@ -39,6 +39,10 @@ hit_into_play2016 <- map2_dfr(start_dates, end_dates, scrape_statcast_savant) %>
 ```
 
 ```{r}
+#hit_into_play2016 %>%
+#  write.csv(.,"C:\\Users\\garrett.whitener\\OneDrive - West Point\\2. Cow\\MA388\\Sabermetrics\\class project\\MA388_Project\\projectdata.csv", row.names = FALSE)
+
+
 #creates HR probability model based on batting launch angle and speed
 model.location = gam(events == "home_run" ~ s(launch_speed, launch_angle),
                      family = "binomial",
