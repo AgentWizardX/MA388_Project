@@ -1,0 +1,66 @@
+---
+title: "project"
+author: "Sorie Yillah"
+date: "4/21/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# Imports go here
+library(tidyverse)
+library(Lahman)
+library(lubridate)
+library(baseballr)
+library(mgcv)
+library(lme4)
+library(broom)
+library(modelr)
+library(glue)
+library(plotly)
+library(ggrepel)
+#install.packages('ggfortify')
+library(ggfortify)
+```
+
+
+The Home Run Explosion lasted from 2015 to 2019. So lets look at batters who batted before the explosion and during the explosion
+
+```{r}
+batting <- Batting
+Batting %>%
+  filter(yearID >= 2010) %>%
+  group_by(yearID) %>%
+  summarise(HR = sum(HR)) -> totalHRs
+```
+
+```{r}
+Batting %>%
+  filter(yearID >= 2010) %>%
+  filter (yearID < 2015) %>%
+  group_by(playerID) %>%
+  summarise(H = sum(H), AB = sum(AB), X2B = sum(X2B), X3B = sum(X3B)) -> beforeExplosion
+
+Batting %>%
+  filter(yearID >= 2015) %>%
+  filter (yearID < 2020) %>%
+  group_by(playerID) %>%
+  summarise(H = sum(H), AB = sum(AB), X2B = sum(X2B), X3B = sum(X3B)) -> duringExplosion
+
+```
+
+```{r}
+
+```
+
+
+```{r}
+People %>%
+  filter(debut < 2010 | between(debut, 2010, 2019)) %>%
+  filter(finalGame < 2019) -> range
+```
+
+start date between range 
