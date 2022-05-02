@@ -60,7 +60,8 @@ name_stats <- Batting %>%
   summarize_at(vars,sum,na.rm = TRUE) %>%
   mutate(AVG = round(H/AB,3),
          HR.rate = HR/AB,
-         PA = AB + BB + SH + HBP + SF) %>%
+         PA = AB + BB + SH + HBP + SF,
+         OBP = (H+BB+HBP)/(AB+BB+HBP+SF)) %>%
   left_join(People, by = "playerID")
 
 #joins the player stats with the statcast data
@@ -76,7 +77,7 @@ hit_into_play2016_stats_model = model.location %>%
   rename(HR_prob = .fitted)
 
 #create a random effects model with fixed effect fro batter and teh batter's BA
-model_random_effects = glmer(events == "home_run" ~ HR_prob + (1|player_name) + AVG,
+model_random_effects = glmer(events == "home_run" ~ HR_prob + (1|player_name) + AVG + OBP,
                              family = "binomial",
                              data = hit_into_play2016_stats_model)   #one with vertical line indicated random effect
 summary(model_random_effects)
