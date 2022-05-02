@@ -82,5 +82,14 @@ model_random_effects = glmer(events == "home_run" ~ HR_prob + (1|player_name) + 
                              data = hit_into_play2016_stats_model)   #one with vertical line indicated random effect
 summary(model_random_effects)
 
+#final_data = model_random_effects %>%
+  #augment(type.predict = "response",
+          #newdata = hit_into_play2016_stats)
+
+#model_random_effects %>% 
+  #ggplot(aes(x = AVG, y = OBP, color = HR_prob)) +  
+  #geom_point() +
+  #scale_fill_gradient("HR prob", low = "blue", high = "white") 
+
 ```
 
