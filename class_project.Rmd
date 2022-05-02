@@ -67,7 +67,7 @@ name_stats <- Batting %>%
 #one row per pitch, adding the batter's seasonal batting stats each row
 hit_into_play2016_stats = name_stats %>%
   mutate(player_name = paste(nameLast,nameFirst, sep = ", "))%>%
-  left_join(hit_into_play2016, by = "player_name")
+  right_join(hit_into_play2016, by = "player_name")
   
 #fit random effects model adjusting for pitch location
 hit_into_play2016_stats_model = model.location %>%
@@ -78,7 +78,7 @@ hit_into_play2016_stats_model = model.location %>%
 #create a random effects model with fixed effect fro batter and teh batter's BA
 model_random_effects = glmer(events == "home_run" ~ HR_prob + (1|player_name) + AVG,
                              family = "binomial",
-                             data = hit_into_play2016_stats)   #one with vertical line indicated random effect
+                             data = hit_into_play2016_stats_model)   #one with vertical line indicated random effect
 summary(model_random_effects)
 
 ```
